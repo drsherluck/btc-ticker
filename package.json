@@ -1,0 +1,19 @@
+{
+  "name": "btc-ticker",
+  "version": "1.0.0",
+  "description": "Real time btc value (https://coinmarketcap.com) to 7 Segment Display",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "lmyaoi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lmyaoi/btc-ticker.git"
+  },
+  "dependencies": {
+    "node-coinmarketcap": "^0.2.0",
+    "onoff": "^1.1.8"
+  }
+}
