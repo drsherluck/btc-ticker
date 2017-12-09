@@ -53,3 +53,12 @@ cap.on(coin, (info) => {
 stdin.addListener("data", (input) => {
   setCurrency(input)
 });
+
+process.on("exit", () => {
+  console.log("\n> k bye");
+  process.exit();
+});
+
+process.on("SIGINT", () => {
+  process.exit();
+});
