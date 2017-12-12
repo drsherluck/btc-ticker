@@ -8,13 +8,10 @@ InputHandler();
 let cointicker = new CoinMarketCap(Config.getOptions());
 
 cointicker.on(Config.coin, (info) => {
-  console.log("> " + Ticker.getPrice(info));
+  Ticker.getPrice(info);
 });
 
-process.on("exit", () => {
-  console.log("\n> k bye");
-  process.exit();
-});
+
 
 process.on("SIGINT", () => {
   console.log("\n> sigint");
