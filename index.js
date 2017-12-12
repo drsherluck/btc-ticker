@@ -166,10 +166,10 @@ function setCurrency(input) {
   input = input.toString().trim();
   switch (input) {
     case "EUR":
-      currency = input;
+      fiat = input;
       break;
     case "USD":
-      currency = input;
+      fiat = input;
       break;
     default:
       console.log("> The currency \"" + input + "\" is not currently supported.");
