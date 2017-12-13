@@ -61,11 +61,23 @@ module.exports = (_ => {
 
         // init prices which are null.
         let initPrices = (specs) => {
+            if (last_price) return
             let { price_eur, price_usd } = specs
             if (!last_price)
                 last_price = { price_eur, price_usd }
             if (!first_price) 
-                first_price = { price_eur, price_usd }                
+                first_price = { price_eur, price_usd }
+            
+            let colors = {
+                c_1h: red,
+                c_24h: red,
+                c_7d: red
+            }
+            if (specs.percent_change_1h >= 0) colors.c_1h = green
+            if (specs.percent_change_24h >= 0) colors.c_24h = green
+            if (specs.percent_change_7d >= 0) colors.c_7d = green
+            console.log("1h: " + colors.c_1h + "%s"+ res +" 24h: "+ colors.c_24h + "%s"+ res +" 7d: " + colors.c_7d + "%s"+ res,
+                            specs.percent_change_1h, specs.percent_change_24h, specs.percent_change_7d )            
         }
 
         function getPrice(info) {
@@ -92,6 +104,7 @@ module.exports = (_ => {
 
         function setAlertPrice(price) {
             alert_price = price;
+            console.log("> Alert price set to " + price)
         }
 
         return Object.freeze({

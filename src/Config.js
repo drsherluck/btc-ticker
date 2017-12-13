@@ -6,7 +6,7 @@ let config_mod = (_ => {
     let coin = config_file.coin;
     let refresh_rate = config_file.refresh;
 
-    getOptions = () => {
+    let getOptions = () => {
         return {
             events: true,
             convert: fiat,

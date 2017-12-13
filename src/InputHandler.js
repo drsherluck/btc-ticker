@@ -116,16 +116,11 @@ module.exports = (_ => {
             return 0;
         }
 
-        function setAlert(price) {
-            tricker.setAlertPrice( parseFloat(price) );
-            console.log("> Alert price set to " + price)
-        }
-
         stdin.addListener("data", (input) => {
             let st = input.toString().trim();
             let arr = st.split(' ');
             if (arr[0] == 'alert') {
-                setAlert(arr[1])
+                tricker.setAlertPrice( parseFloat(arr[1]) )
             } else {
                 setCurrency(input)
             }

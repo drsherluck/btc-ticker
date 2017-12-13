@@ -1,6 +1,6 @@
 module.exports = (_ => {
     
-    errorHandle = function(errorCode) {
+    let errorHandle = function(errorCode) {
         switch (errorCode) {
           case 0:
             //no error duh
