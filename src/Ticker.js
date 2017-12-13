@@ -1,114 +1,160 @@
 'use strict';
 const Config = require("./Config") ;
+const support = require("./support");
 
 module.exports = (_ => {
     let red = "\x1b[31m"
     let green = "\x1b[32m"
     let res = "\x1b[0m"
 
+    /**
+     * Object that manages input from CoinMarketCap.
+     */
     let Ticker = () => {
         let last_price = null;
-        let first_price = null;
         let alert_price = null;
-        
-        let coin = Config.coin;
+        let hour_trend = 4;
 
-        // updates the price if it changed.
-        let setNewPrices = (specs) => {
+        /**
+         * Sets the last_price.
+         * 
+         * @param {Object} specs data from coinmarketcap
+         */
+        let setLastPrice = (specs) => {
             let { price_eur, price_usd } = specs
             last_price = { price_eur, price_usd }
         }
 
+        /**
+         * Alerts the user if a price goal has been achieved.
+         */
         let alert = () => {
             if (!alert_price) return;
-            if (alert_price => last_price) {
+            if (alert_price >= last_price) {
                 console.log("> PRICE GOAL REACHED!")
             }
         }
-        
-        let round = (value) => {
-            return Number(Math.round(value+'e3')+'e-3');
-        }
 
-        // get the percentage of increased or decreased
+        /**
+         * Gives the change compared to the last price in percentage.
+         * 
+         * @param {Object} specs data from coinmarketcap
+         * @returns {number, string} the percentage in number and the output string e.g +2.0%
+         */
         let percentage = (specs) => {
             let { price_eur, price_usd } = specs
-            let percent = { 
-                last_color: red, 
-                first_color: red, 
-                last_per: "0", 
-                first_per: "0"
-            };
-            percent.last_color = red
-            percent.first_color = red
+            let percent = {
+                last_per: 0,
+                output: ""
+            }
 
             let last_per = ((price_eur/last_price.price_eur)*100) - 100;
-            percent.last_per = ""+ round(last_per)
+            percent.last_per = support.round(last_per)
             if (last_per >= 0) {
                 percent.last_color = green
-                percent.last_per = "+" + percent.last_per;
+                percent.output = percent.last_color + "+" + percent.last_per + "%" + res;
             }
-
-            let first_per = ((price_eur/first_price.price_eur)*100) - 100;
-            percent.first_per = "" + round(first_per)
-            if (first_per >= 0) {
-                percent.first_color = green
-                percent.first_per = "+" + percent.first_per;
-            }
-            setNewPrices(specs)
+            setLastPrice(specs)
             return percent;
         }
 
-        // init prices which are null.
-        let initPrices = (specs) => {
-            if (last_price) return
-            let { price_eur, price_usd } = specs
-            if (!last_price)
-                last_price = { price_eur, price_usd }
-            if (!first_price) 
-                first_price = { price_eur, price_usd }
-            
+        /**
+         * Displays the hourly, daily and 7 day trend every 4 updates.
+         * 
+         * @param {Object} specs data from coinmarketcap
+         */
+        let trendChange = (specs) => {
+            if (hour_trend && hour_trend < 4) {
+                (hour_trend == 0) ? hour_trend = 4 : hour_trend--;
+                return;
+            }
+            trendPercentages(specs);
+            hour_trend--;
+        }
+
+        /**
+         * Displays the hourly, daily and 7 day percentages
+         * 
+         * @param {Object} specs data from coinmarketcap
+         */
+        let trendPercentages = (specs) => {
             let colors = {
                 c_1h: red,
                 c_24h: red,
                 c_7d: red
             }
-            if (specs.percent_change_1h >= 0) colors.c_1h = green
-            if (specs.percent_change_24h >= 0) colors.c_24h = green
-            if (specs.percent_change_7d >= 0) colors.c_7d = green
-            console.log("1h: " + colors.c_1h + "%s"+ res +" 24h: "+ colors.c_24h + "%s"+ res +" 7d: " + colors.c_7d + "%s"+ res,
-                            specs.percent_change_1h, specs.percent_change_24h, specs.percent_change_7d )            
+            if (specs.percent_change_1h >= 0)   colors.c_1h  = green
+            if (specs.percent_change_24h >= 0)  colors.c_24h = green
+            if (specs.percent_change_7d >= 0)   colors.c_7d  = green
+            let s1 = colors.c_1h + specs.percent_change_1h + "%" + res
+            let s2 = colors.c_24h + specs.percent_change_24h + "%" + res
+            let s3 = colors.c_7d + specs.percent_change_7d  + "%" + res
+            console.log("1h: " + s1 +" 24h: "+ s2 +" 7d: " + s3)      
         }
 
-        function getPrice(info) {
-            // did the price change?
+        /**
+         * Initializes the prices at frist run.
+         * 
+         * @param {Object} specs data from coinmarketcap
+         */
+        let initPrices = (specs) => {
+            if (last_price) return
+            let { price_eur, price_usd } = specs
+            if (!last_price)
+                last_price = { price_eur, price_usd }
+        }
+
+        /**
+         * By default will return prices in USD.
+         * 
+         * @param {Object} info data from coinmarketcap
+         * @returns {string} the price of the crypto currency e.g 14023.90 USD
+         */
+        let getPrice = (info) => {
+            let fiat = Config.fiat;
+            let price = null;
+            let srting = null;
+            switch (fiat) {
+                case "EUR": price = info.price_eur; break;
+                default: price = info.price_usd ; break; 
+            }
+            return support.round(price) + " " + fiat;
+        }
+
+        /**
+         * Displays the recent updates on the value of the crypto currency.
+         * 
+         * @param {Object} info data from coinmarketcap
+         */
+        let update = (info) => {
+            // if price didnt change stop.
             let { price_eur, price_usd } = info
             if (last_price && last_price.price_eur == price_eur ) return; 
 
             initPrices(info);
-            let fiat = Config.fiat;
-            let ret;
-            switch (fiat) {
-                case "EUR": ret = info.price_eur; break;
-                case "USD": ret = info.price_usd ; break;
-                default:
-                    return "The currency \"" + fiat + "\" is not currently supported.";
-            }
+            trendChange(info);
             let p = percentage(info);
             alert();
-            let string = "> " + round(ret) + " " + fiat;
-            // not displaying percentage increased from beginning of execution of the program (first_per)
-            // displayin the percentage increased from last price.
-            console.log("%s" + " " + p.first_color + "%s" + res, string, p.first_per)
+            console.log("%s %s %s", getPrice(info) , p.output, "[" + support.unixTime(info.last_updated) + "]")
         }
 
-        function setAlertPrice(price) {
+        /**
+         * Set a 'alarm' for when the value of a crypto currency
+         * gets below or at the given price.
+         * 
+         * @param {number} price to be alerted for.
+         */
+        let setAlertPrice = (price) => {
             alert_price = price;
             console.log("> Alert price set to " + price)
         }
 
+        /**
+         * Return the object with only some visible methods.
+         */
         return Object.freeze({
             getPrice,
+            update,
             setAlertPrice
         })
 

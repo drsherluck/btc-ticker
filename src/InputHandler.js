@@ -119,10 +119,13 @@ module.exports = (_ => {
         stdin.addListener("data", (input) => {
             let st = input.toString().trim();
             let arr = st.split(' ');
-            if (arr[0] == 'alert') {
-                tricker.setAlertPrice( parseFloat(arr[1]) )
-            } else {
-                setCurrency(input)
+            switch (arr[0]) {
+                case('alert') : 
+                    tricker.setAlertPrice( parseFloat(arr[1]) ); break;
+                case('q'): case('quit'): 
+                    process.exit(0); break;
+                default: 
+                    setCurrency(input); break;
             }
         });
 

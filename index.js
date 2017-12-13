@@ -10,10 +10,8 @@ let cointicker = new CoinMarketCap(Config.getOptions());
 input.setTricker(Ticker);
 
 cointicker.on(Config.coin, (info) => {
-  Ticker.getPrice(info);
+  Ticker.update(info);
 });
-
-
 
 process.on("SIGINT", () => {
   console.log("\n> sigint");
