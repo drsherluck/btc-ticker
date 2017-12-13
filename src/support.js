@@ -22,7 +22,7 @@ let support = (_ => {
      * @param {number} value the float number to be rounded
      */
     let round = (value) => {
-        return Number(Math.round(value+'e3')+'e-3');
+        return Number(Math.round(value+'e2')+'e-2');
     }
 
     return {

@@ -50,6 +50,7 @@ module.exports = (_ => {
 
             let last_per = ((price_eur/last_price.price_eur)*100) - 100;
             percent.last_per = support.round(last_per)
+            percent.output = percent.last_color + percent.last_per + "%" + res;
             if (last_per >= 0) {
                 percent.last_color = green
                 percent.output = percent.last_color + "+" + percent.last_per + "%" + res;
