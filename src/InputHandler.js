@@ -3,7 +3,8 @@ const ErrorHandler = require("./Errors");
 
 module.exports = (_ => {
 
-    let InputHandler = () => {        
+    let InputHandler = () => {
+        let tricker = null        
         processArgs(process.argv);
         let stdin = process.openStdin();
 
@@ -115,11 +116,26 @@ module.exports = (_ => {
             return 0;
         }
 
+        function setAlert(price) {
+            tricker.setAlertPrice( parseFloat(price) );
+            console.log("> Alert price set to " + price)
+        }
+
         stdin.addListener("data", (input) => {
-            setCurrency(input)
+            let st = input.toString().trim();
+            let arr = st.split(' ');
+            if (arr[0] == 'alert') {
+                setAlert(arr[1])
+            } else {
+                setCurrency(input)
+            }
         });
 
-        return Object.freeze({ })
+        function setTricker(tt) {
+            tricker = tt;
+        }
+
+        return Object.freeze({ setTricker })
 
     }
 
