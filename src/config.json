@@ -1,0 +1,7 @@
+{
+    "fiat": "EUR",
+    "coin": "BTC",
+    "refresh": 6,
+    "alert": false,
+    "alert_price": -1
+}
